@@ -34,7 +34,7 @@ namespace ITShop.Controllers
 			Problem("Entity set 'ITShopDbContext.LoaiSanPham' is null.");
 		}
 
-
+		//thu
 		// GET: Login
 		[AllowAnonymous]
 		public IActionResult Login(string? ReturnUrl)

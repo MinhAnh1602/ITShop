@@ -1,4 +1,4 @@
-﻿@model ITShop.Models.NguoiDung
+﻿@model BookStore.Models.NguoiDung
 
 @{
     ViewData["Title"] = "Details";
@@ -15,6 +15,12 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.HoVaTen)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DienThoai)

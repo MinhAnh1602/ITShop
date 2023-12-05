@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ITShop.Models;
+using BookStore.Models;
 using Microsoft.AspNetCore.Authorization;
 
-namespace ITShop.Areas.Admin.Controllers
+namespace BookStore.Areas.Admin.Controllers
 {
 	[Area("Admin")]
 	[Authorize(Roles = "Admin")]
 	public class TinhTrangController : Controller
     {
-        private readonly ITShopDbContext _context;
+        private readonly BookStoreDBContext _context;
 
-        public TinhTrangController(ITShopDbContext context)
+        public TinhTrangController(BookStoreDBContext context)
         {
             _context = context;
         }
@@ -24,20 +24,20 @@ namespace ITShop.Areas.Admin.Controllers
         // GET: TinhTrang
         public async Task<IActionResult> Index()
         {
-            return _context.KhachHang != null ?
-                        View(await _context.KhachHang.ToListAsync()) :
-                        Problem("Entity set 'ITShopDbContext.KhachHang'  is null.");
+              return _context.TinhTrang != null ? 
+                          View(await _context.TinhTrang.ToListAsync()) :
+                          Problem("Entity set 'BookStoreDBContext.TinhTrang'  is null.");
         }
 
         // GET: TinhTrang/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.KhachHang == null)
+            if (id == null || _context.TinhTrang == null)
             {
                 return NotFound();
             }
 
-            var tinhTrang = await _context.KhachHang
+            var tinhTrang = await _context.TinhTrang
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (tinhTrang == null)
             {
@@ -72,12 +72,12 @@ namespace ITShop.Areas.Admin.Controllers
         // GET: TinhTrang/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.KhachHang == null)
+            if (id == null || _context.TinhTrang == null)
             {
                 return NotFound();
             }
 
-            var tinhTrang = await _context.KhachHang.FindAsync(id);
+            var tinhTrang = await _context.TinhTrang.FindAsync(id);
             if (tinhTrang == null)
             {
                 return NotFound();
@@ -123,12 +123,12 @@ namespace ITShop.Areas.Admin.Controllers
         // GET: TinhTrang/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.KhachHang == null)
+            if (id == null || _context.TinhTrang == null)
             {
                 return NotFound();
             }
 
-            var tinhTrang = await _context.KhachHang
+            var tinhTrang = await _context.TinhTrang
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (tinhTrang == null)
             {
@@ -143,23 +143,23 @@ namespace ITShop.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.KhachHang == null)
+            if (_context.TinhTrang == null)
             {
-                return Problem("Entity set 'ITShopDbContext.KhachHang'  is null.");
+                return Problem("Entity set 'BookStoreDBContext.TinhTrang'  is null.");
             }
-            var tinhTrang = await _context.KhachHang.FindAsync(id);
+            var tinhTrang = await _context.TinhTrang.FindAsync(id);
             if (tinhTrang != null)
             {
-                _context.KhachHang.Remove(tinhTrang);
+                _context.TinhTrang.Remove(tinhTrang);
             }
-
+            
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool TinhTrangExists(int id)
         {
-            return (_context.KhachHang?.Any(e => e.ID == id)).GetValueOrDefault();
+          return (_context.TinhTrang?.Any(e => e.ID == id)).GetValueOrDefault();
         }
     }
 }

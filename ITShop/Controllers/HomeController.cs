@@ -1,40 +1,66 @@
-﻿using ITShop.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
-using NuGet.Protocol;
-using System.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Web;
-using Microsoft.AspNetCore.Authentication;
+﻿using BookStore.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using BC = BCrypt.Net.BCrypt;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Security.Claims;
+using BC = BCrypt.Net.BCrypt;
 using Microsoft.EntityFrameworkCore;
 
-namespace ITShop.Controllers
+namespace BookStore.Controllers
 {
-	public class HomeController : Controller
-	{
-		private readonly ITShopDbContext _context;
-		private readonly IHttpContextAccessor _httpContextAccessor;
-		public HomeController(ITShopDbContext context, IHttpContextAccessor httpContextAccessor)
-		{
-			_context = context;
-			_httpContextAccessor = httpContextAccessor;
-		}
-
+    public class HomeController : Controller
+    {
+        private readonly BookStoreDBContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public HomeController(BookStoreDBContext context, IHttpContextAccessor httpContextAccessor)
+        {
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
+        }
+		// GET: Index
 		public async Task<IActionResult> Index()
 		{
-			return _context.LoaiSanPham != null ?
-			View(await _context.LoaiSanPham.Include(s => s.SanPham).ToListAsync()) :
-			Problem("Entity set 'ITShopDbContext.LoaiSanPham' is null.");
+			return _context.TheLoai != null ?
+			View(await _context.TheLoai.Include(s => s.Sach).ToListAsync()) :
+			Problem("Entity set 'BookStoreDbContext.TheLoai' is null.");
 		}
 
-		//thu
+		// GET: Register
+		[AllowAnonymous]
+		public IActionResult Register(string? successMessage)
+		{
+			if (!string.IsNullOrEmpty(successMessage))
+				TempData["ThongBao"] = successMessage;
+			return View();
+		}
+		// POST: Register
+		[HttpPost]
+		[AllowAnonymous]
+		public async Task<IActionResult> Register([Bind("ID,HoVaTen,Email,DienThoai,DiaChi,TenDangNhap,MatKhau,XacNhanMatKhau")] NguoiDung nguoiDung)
+		{
+			if (ModelState.IsValid)
+			{
+				var kiemTra = _context.NguoiDung.Where(r => r.TenDangNhap == nguoiDung.TenDangNhap).SingleOrDefault();
+				if (kiemTra == null)
+				{
+					nguoiDung.MatKhau = BC.HashPassword(nguoiDung.MatKhau);
+					nguoiDung.XacNhanMatKhau = BC.HashPassword(nguoiDung.MatKhau);
+					nguoiDung.Quyen = false; // Khách hàng
+					_context.Add(nguoiDung);
+					await _context.SaveChangesAsync();
+					return RedirectToAction("Register", "Home", new { Area = "", successMessage = "Đăng ký tài khoản thành công." });
+				}
+				else
+				{
+					TempData["ThongBaoLoi"] = "Tên đăng nhập này đã được sử dụng cho một tài khoản khác.";
+					return View(nguoiDung);
+				}
+			}
+			return View(nguoiDung);
+		}
+
 		// GET: Login
 		[AllowAnonymous]
 		public IActionResult Login(string? ReturnUrl)
@@ -50,7 +76,8 @@ namespace ITShop.Controllers
 				ViewBag.LienKetChuyenTrang = ReturnUrl ?? "/";
 				return View();
 			}
-		}// POST: Login
+		}
+		// POST: Login
 		[HttpPost]
 		[AllowAnonymous]
 		public async Task<IActionResult> Login([Bind] DangNhap dangNhap)
@@ -66,12 +93,12 @@ namespace ITShop.Controllers
 				else
 				{
 					var claims = new List<Claim>
-					{
-						new Claim("ID", nguoiDung.ID.ToString()),
-						new Claim(ClaimTypes.Name, nguoiDung.TenDangNhap),
-						new Claim("HoVaTen", nguoiDung.HoVaTen),
-						new Claim(ClaimTypes.Role, nguoiDung.Quyen ? "Admin" : "User")
-					};
+				{
+					new Claim("ID", nguoiDung.ID.ToString()),
+					new Claim(ClaimTypes.Name, nguoiDung.TenDangNhap),
+					new Claim("HoVaTen", nguoiDung.HoVaTen),
+					new Claim(ClaimTypes.Role, nguoiDung.Quyen ? "Admin" : "User")
+				};
 					var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 					var authProperties = new AuthenticationProperties
 					{

@@ -1,0 +1,17 @@
+﻿@model IEnumerable<ITShop.Models.ChuDe>
+@using Slugify
+<li class=" nav-item dropdown">
+	<a class="nav-link dropdown-toggle" asp-area="" asp-controller="ChuDe" asp-action="Index" data-bs-toggle="dropdown" data-bs-auto-close="outside"><i class="ci-globe me-2"></i>Tin tức</a>
+	<ul class="dropdown-menu">
+		@foreach (var item in Model)
+		{
+			<li>
+				@{
+					SlugHelper slugTenChuDe = new SlugHelper();
+					string tenChuDeKhongDau = slugTenChuDe.GenerateSlug(item.TenChuDe);
+				}
+				<a class="dropdown-item" asp-area="" asp-controller="BaiViet" asp-action="ChuDe" asp-route-tenChuDe="@tenChuDeKhongDau">@item.TenChuDe</a>
+			</li>
+		}
+	</ul>
+</li>
